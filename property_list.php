@@ -1,3 +1,55 @@
+<?php
+// session_start();
+
+require"includes/database_connect.php";
+
+$users_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : NULL;
+
+// if(isset($_SESSION['user_id'])) {
+//     $users_id = $_SESSION['user_id'];
+// }else {
+//     $users_id = NULL;
+// }
+
+$city_name = $_GET["city"];
+
+$sql_1 = "SELECT * FROM cities WHERE cities_name = '$city_name'";
+$result = mysqli_query($conn, $sql_1);
+if(!$result) {
+    echo "something went wrong!";
+    echo $city_name;
+    return;
+}
+$city = mysqli_fetch_assoc($result);
+if(!$city) {
+    echo "sorry! we do not have any PG listed in city.";
+    return;
+}
+$city_id = $city['id'];
+
+$sql2 = "SELECT * FROM properties WHERE cities_id = '$city_id'";
+$result2 = mysqli_query($conn, $sql2);
+if(!$result2) {
+    echo "something went wrong";
+    return;
+}
+$properties = mysqli_fetch_all($result2, MYSQLI_ASSOC);
+
+
+$sql_3 = " SELECT *
+            FROM interested_property
+            INNER JOIN properties ON interested_property.property_id = properties.id
+            WHERE properties.cities_id = '$city_id'";
+$result_3 = mysqli_query($conn, $sql_3);
+if (!$result_3) {
+    echo "something went wrong!";
+    echo $city_id;
+    return;
+}
+
+$intrested_users_properties = mysqli_fetch_all($result_3, MYSQLI_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,7 +75,7 @@ include("includes/header.php")
                 <a href="index.php">Home</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Mumbai
+                <?php echo $city_name ?>
             </li>
         </ol>
     </nav>
