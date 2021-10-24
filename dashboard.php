@@ -39,10 +39,10 @@ include("includes/header.php")
         <div class="col-md-9">
             <div class="row no-gutters justify-content-betweem align-items-end">
                 <div class="profile">
-                    <div class="name">Aditya sood</div>
-                    <div class="email">adity@gmail.com</div>
-                    <div class="phone">9876543210</div>
-                    <div class="college">Intrshala</div>
+                    <div class="name"><?php echo $_SESSION['full_name']?></div>
+                    <div class="email"><?php echo $_SESSION['email']?></div>
+                    <div class="phone"><?php echo $_SESSION['phone']?></div>
+                    <div class="college"><?php echo $_SESSION['college']?></div>
                 </div>
                 <div class="edit">
                     <div class="edit-profile"></div>

@@ -32,8 +32,10 @@ if($row_count == 0) {
 $_SESSION['user_id'] = $row['id'];
 $_SESSION['full_name'] = $row['name'];
 $_SESSION['email'] = $row['email'];
+$_SESSION['phone'] = $row['phone_number'];
+$_SESSION['college'] = $row['college_name'];
 header("location: ../index.php");
-// echo "hello".$_SESSION['user_id'];
+// echo "hello".$_SESSION['phone'];
 mysqli_close($conn);
 }
 ?>
