@@ -1,9 +1,53 @@
+<?php
+require"includes/database_connect.php";
+
+$user_id =isset($_SESSION['user_id']) ? $_SESSION['user_id'] : NULL;
+$property_id = $_GET['id'];
+
+
+$sql2 = "SELECT * FROM properties WHERE id = '$property_id'";
+$result = mysqli_query($conn, $sql2);
+if(!$result) {
+    echo "something went wrong";
+    return;
+}
+$properties = mysqli_fetch_all($result, MYSQLI_ASSOC);
+$property = $properties[0];
+$city_id = $property['cities_id'];
+
+$sql3 = "SELECT * FROM cities WHERE id = '$city_id'";
+$result1 = mysqli_query($conn, $sql3);
+if(!$result1) {
+    echo "something went wrong!";
+    return;
+}
+$city_name = mysqli_fetch_all($result1, MYSQLI_ASSOC);
+$city_name1 = $city_name[0];
+
+$property_id = $property['id'];
+$sql4 = "SELECT * FROM `properties_amenities` WHERE property_id = '$property_id'";
+$result2 = mysqli_query($conn, $sql4);
+if(!$result2) {
+    echo "something went wrong!";
+    return;
+}
+$amenities = mysqli_fetch_all($result2, MYSQLI_ASSOC);
+
+// foreach($amenities as $amenity) {
+//     echo $amenity['amenity_id'];
+// }
+// SELECT type FROM `amenities` WHERE id = 1;
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ganpati Paying Guest | PG Life</title>
+    <!-- <title>Ganpati Paying Guest | PG Life</title> -->
+    <title> <?php echo $property['name']?> | PG Life</title>
+
 
    <?php
    include("includes/head-link.php")
@@ -23,10 +67,12 @@ include("includes/header.php")
                 <a href="index.php">Home</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="property_list.php">Mumbai</a>
+                <a href="property_list.php?city=<?php echo $city_name1['cities_name'];?>"><?php echo $city_name1['cities_name']; ?></a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Ganpati Paying Guest
+                <?php
+                echo $property['name'];
+                ?>
             </li>
         </ol>
     </nav>
@@ -60,12 +106,30 @@ include("includes/header.php")
 
     <div class="property-summary page-container">
         <div class="row no-gutters justify-content-between">
-            <div class="star-container" title="4.8">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
+        <?php
+                    $total_rating = ($property['rating_clean'] + $property['rating_food'] + $property['rating_safety'])/3;
+                    $total_rating = round($total_rating, 1);
+                    ?>
+            <div class="star-container" title=<?php echo $total_rating?>>
+            <?php
+                    $rating = $total_rating;
+                    for($i = 0; $i < 5; $i++) {
+                        if($rating >= $i + 0.8) {
+                    ?>
+                             <i class="fas fa-star"></i>
+                        <?php
+                        }elseif($rating >= $i + 0.3) {
+                        ?>
+                             <i class="fas fa-star-half-alt"></i>
+                        <?php
+                        } else {
+                        ?>
+                            <i class="far fa-star"></i>
+                        <?php
+                        }
+                        
+                    }
+                    ?>
             </div>
             <div class="interested-container">
                 <i class="is-interested-image far fa-heart"></i>
@@ -75,15 +139,30 @@ include("includes/header.php")
             </div>
         </div>
         <div class="detail-container">
-            <div class="property-name">Ganpati Paying Guest</div>
-            <div class="property-address">Police Beat, Sainath Complex, Besides, SV Rd, Daulat Nagar, Borivali East, Mumbai - 400066</div>
+            <div class="property-name"><?php echo $property['name']; ?></div>
+            <div class="property-address"><?php echo $property['address']; ?></div>
             <div class="property-gender">
-                <img src="img/unisex.png" />
+            <?php
+                       if($property['gender'] == "male") {
+                        ?>
+                    <img src="img/male.png" />
+                    <?php
+                       }elseif($property['gender'] == "female") {
+                           ?>
+                        <img src="img/female.png" />
+                        <?php
+                       }else{
+                           ?>
+                           <img src="img/unisex.png"/>
+                           <?php
+                       }
+                       ?>
+                        
             </div>
         </div>
         <div class="row no-gutters">
             <div class="rent-container col-6">
-                <div class="rent">Rs 8,500/-</div>
+                <div class="rent">Rs <?php echo $property['rent'];?>/-</div>
                 <div class="rent-unit">per month</div>
             </div>
             <div class="button-container col-6">
@@ -157,7 +236,7 @@ include("includes/header.php")
 
     <div class="property-about page-container">
         <h1>About the Property</h1>
-        <p>Furnished studio apartment - share it with close friends! Located in posh area of Bijwasan in Delhi, this house is available for both boys and girls. Go for a private room or opt for a shared one and make it your own abode. Go out with your new friends - catch a movie at the nearest cinema hall or just chill in a cafe which is not even 2 kms away. Unwind with your flatmates after a long day at work/college. With a common living area and a shared kitchen, make your own FRIENDS moments. After all, there's always a Joey with unlimited supply of food. Remember, all it needs is one crazy story to convert a roomie into a BFF. What's nearby/Your New Neighborhood 4.0 Kms from Dwarka Sector- 21 Metro Station.</p>
+        <p><?php echo $property['description']; ?></p>
     </div>
 
     <div class="property-rating">
@@ -170,12 +249,33 @@ include("includes/header.php")
                             <i class="rating-criteria-icon fas fa-broom"></i>
                             <span class="rating-criteria-text">Cleanliness</span>
                         </div>
-                        <div class="rating-criteria-star-container col-6" title="4.3">
+                        <?php $ratingc = $property['rating_clean'];?>
+                        <div class="rating-criteria-star-container col-6" title=<?php echo $ratingc;?>>
+                            <?php 
+                            for($i = 0; $i < 5; $i++) {
+                                if($ratingc >= $i + 0.8) {
+                            ?>
+                                     <i class="fas fa-star"></i>
+                                <?php
+                                }elseif($ratingc >= $i + 0.3) {
+                                ?>
+                                     <i class="fas fa-star-half-alt"></i>
+                                <?php
+                                } else {
+                                ?>
+                                    <i class="far fa-star"></i>
+                                <?php
+                                }
+                                
+                            }
+                            ?>
+                            
+                            
+                            <!-- <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                            <i class="fas fa-star-half-alt"></i> -->
                         </div>
                     </div>
 
@@ -184,12 +284,32 @@ include("includes/header.php")
                             <i class="rating-criteria-icon fas fa-utensils"></i>
                             <span class="rating-criteria-text">Food Quality</span>
                         </div>
-                        <div class="rating-criteria-star-container col-6" title="3.4">
-                            <i class="fas fa-star"></i>
+                        <?php $ratingf = $property['rating_food'];?>
+                        <div class="rating-criteria-star-container col-6" title=<?php echo $ratingf;?>>
+                        <?php 
+                            for($i = 0; $i < 5; $i++) {
+                                if($ratingf >= $i + 0.8) {
+                            ?>
+                                     <i class="fas fa-star"></i>
+                                <?php
+                                }elseif($ratingf >= $i + 0.3) {
+                                ?>
+                                     <i class="fas fa-star-half-alt"></i>
+                                <?php
+                                } else {
+                                ?>
+                                    <i class="far fa-star"></i>
+                                <?php
+                                }
+                                
+                            }
+                            ?>
+                            
+                            <!-- <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star-half-alt"></i>
-                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i> -->
                         </div>
                     </div>
 
@@ -198,25 +318,64 @@ include("includes/header.php")
                             <i class="rating-criteria-icon fa fa-lock"></i>
                             <span class="rating-criteria-text">Safety</span>
                         </div>
-                        <div class="rating-criteria-star-container col-6" title="4.8">
+                        <?php $ratings = $property['rating_safety'];?>
+                        <div class="rating-criteria-star-container col-6" title=<?php echo $ratings;?>>
+                        <?php 
+                            for($i = 0; $i < 5; $i++) {
+                                if($ratings >= $i + 0.8) {
+                            ?>
+                                     <i class="fas fa-star"></i>
+                                <?php
+                                }elseif($ratings >= $i + 0.3) {
+                                ?>
+                                     <i class="fas fa-star-half-alt"></i>
+                                <?php
+                                } else {
+                                ?>
+                                    <i class="far fa-star"></i>
+                                <?php
+                                }
+                                
+                            }
+                            ?>
+                            
+                            <!-- <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i> -->
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="rating-circle">
-                        <div class="total-rating">4.2</div>
+                        <div class="total-rating"><?php echo $total_rating;?></div>
                         <div class="rating-circle-star-container">
+                        <?php 
+                            for($i = 0; $i < 5; $i++) {
+                                if($total_rating >= $i + 0.8) {
+                            ?>
+                                     <i class="fas fa-star"></i>
+                                <?php
+                                }elseif($total_rating >= $i + 0.3) {
+                                ?>
+                                     <i class="fas fa-star-half-alt"></i>
+                                <?php
+                                } else {
+                                ?>
+                                    <i class="far fa-star"></i>
+                                <?php
+                                }
+                                
+                            }
+                            ?>
+                            
+                            <!-- <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i> -->
                         </div>
                     </div>
                 </div>

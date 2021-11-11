@@ -1,23 +1,15 @@
 <?php
-// session_start();
 
 require"includes/database_connect.php";
 
-$users_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : NULL;
-
-// if(isset($_SESSION['user_id'])) {
-//     $users_id = $_SESSION['user_id'];
-// }else {
-//     $users_id = NULL;
-// }
+// $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : NULL;
+// echo $_SESSION['user_id'];
 
 $city_name = $_GET["city"];
-
 $sql_1 = "SELECT * FROM cities WHERE cities_name = '$city_name'";
 $result = mysqli_query($conn, $sql_1);
 if(!$result) {
     echo "something went wrong!";
-    echo $city_name;
     return;
 }
 $city = mysqli_fetch_assoc($result);
@@ -36,18 +28,6 @@ if(!$result2) {
 $properties = mysqli_fetch_all($result2, MYSQLI_ASSOC);
 // echo $properties; HW
 
-$sql_3 = " SELECT *
-            FROM interested_property
-            INNER JOIN properties ON interested_property.property_id = properties.id
-            WHERE properties.cities_id = '$city_id'";
-$result_3 = mysqli_query($conn, $sql_3);
-if (!$result_3) {
-    echo "something went wrong!";
-    echo $city_id;
-    return;
-}
-
-$intrested_users_properties = mysqli_fetch_all($result_3, MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -59,6 +39,7 @@ $intrested_users_properties = mysqli_fetch_all($result_3, MYSQLI_ASSOC);
 
    <?php
     include("includes/head-link.php")
+    
    ?>
     <link href="css/property_list.css" rel="stylesheet" />
 </head>
@@ -66,7 +47,26 @@ $intrested_users_properties = mysqli_fetch_all($result_3, MYSQLI_ASSOC);
 <body>
       
 <?php
-include("includes/header.php")
+include("includes/header.php");
+if(isset($_SESSION['user_id'])) {
+    // echo $_SESSION['user_id'];
+    $user_id = $_SESSION['user_id'];
+}else {
+    $user_id = NULL;
+    echo "oops";
+}
+
+$sql_3 = " SELECT *
+FROM interested_property
+WHERE user_id = '$user_id'";
+$result_3 = mysqli_query($conn, $sql_3);
+if (!$result_3) {
+    echo "something went wrong!";
+    echo $city_id;
+    return;
+}
+
+$interested_users_properties = mysqli_fetch_all($result_3, MYSQLI_ASSOC);
 ?>
 
     <nav aria-label="breadcrumb">
@@ -129,12 +129,28 @@ include("includes/header.php")
                             <i class="far fa-star"></i>
                         <?php
                         }
-                        
                     }
                     ?>
                     </div>
                     <div class="interested-container">
-                        <i class="far fa-heart"></i>
+                        <?php
+                        $is_interested = false;
+                        foreach ($interested_users_properties as $interested_user) {
+                            if ($interested_user['property_id'] == $property['id']) {
+                                $is_interested = true;
+                            }
+                        }
+                        if ($is_interested) {
+                            ?>
+                            <i class = "is-interested-img fas fa-heart"></i>
+                            <?php
+                        } else {
+                            ?>
+                            <i class = "is-interested-img far fa-heart"></i>
+                            <?php
+                        }
+                        ?>
+                
                         <div class="interested-text">3 interested</div>
                     </div>
                 </div>
@@ -166,7 +182,7 @@ include("includes/header.php")
                         <div class="rent-unit">per month</div>
                     </div>
                     <div class="button-container col-6">
-                        <a href="property_detail.php" class="btn btn-primary">View</a>
+                        <a href="property_detail.php?id=<?php echo $property['id']?>" class="btn btn-primary">View</a>
                     </div>
                 </div>
             </div>

@@ -86,7 +86,7 @@ include("includes/header.php")
                         <div class="rent-unit">per Month</div>
                     </div>
                     <div class="button-container col-6">
-                        <a href="property_detail.php" class="btn btn-primary">View</a>
+                        <a href="property_detail.php?id=3" class="btn btn-primary">View</a>
                     </div>
                 </div>
             </div>    
@@ -121,7 +121,7 @@ include("includes/header.php")
                         <div class="rent-unit">per month</div>
                     </div>
                     <div class="button-container col-6">
-                        <a href="property_detail.php" class="btn btn-primary">View</a>
+                        <a href="property_detail.php?id=3" class="btn btn-primary">View</a>
                     </div>
                 </div>
             </div>

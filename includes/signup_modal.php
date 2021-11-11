@@ -9,7 +9,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="signup-form" class="form" role="form" action ="api/signup_submit.php" method = "POST">
+                    <form id="signup-form" class="form" role="form" action ="../js/common.js" method = "POST">
                         <div class="input-group form-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">

@@ -62,7 +62,7 @@ include("includes/header.php")
          </div>
 
          <div class="city-card-container col-md">
-             <a href="property_list.phhp?city=Hyderabad">
+             <a href="property_list.php?city=Hyderabad">
                  <div class="city-card rounded-circle">
                      <img src="img/hyderabad.png" class="city-img">
                  </div>
